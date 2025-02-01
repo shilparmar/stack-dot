@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator')
 
 const { db } = require('../models')
-const { user: userModel, user_history: userHistoryModel } = db.models
+const { user: userModel, user_history: userHistoryModel, user_subject: userSubjectModel } = db
 
 // Register user
 const register = async (req, res) => {
@@ -46,6 +46,19 @@ const register = async (req, res) => {
     }
     const addUserHistory = await userHistoryModel.create(addHistoryObj, { transaction: t })
     if (!addUserHistory) {
+      await t.rollback()
+
+      return res.status(422).json({ status: false, statusCode: 422, message: 'User not registered.', data: null })
+    }
+
+    // add student subject history wise
+    const studentSubjectArr = []
+    for (let i = 0; i < req.body.subjects.length; i++) {
+      studentSubjectArr.push({ user_history_id: addUserHistory.user_history_id, subject_id: req.body.subjects[i] })
+    }
+
+    const addUserHistorySubject = await userSubjectModel.bulkCreate(studentSubjectArr, { transaction: t })
+    if (!addUserHistorySubject) {
       await t.rollback()
 
       return res.status(422).json({ status: false, statusCode: 422, message: 'User not registered.', data: null })

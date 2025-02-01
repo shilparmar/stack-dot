@@ -1,8 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
-  const classType = sequelize.define(
-    'class_type',
+  const subject = sequelize.define(
+    'subject',
     {
-      class_id: {
+      subject_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
@@ -26,27 +26,19 @@ module.exports = (sequelize, Sequelize) => {
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at',
-      tableName: 'class_type'
+      tableName: 'subject'
     }
   )
-  classType.associate = models => {
-    classType.belongsTo(models.institute_type, {
-      foreignKey: 'institute_type_id',
-      targetKey: 'institute_type_id'
-    })
-    classType.belongsTo(models.institute_sector, {
-      foreignKey: 'institute_sector_id',
-      targetKey: 'institute_sector_id'
-    })
-    classType.hasMany(models.user_history, {
+  subject.associate = models => {
+    subject.belongsTo(models.class, {
       foreignKey: 'class_id',
-      sourceKey: 'class_id'
+      targetKey: 'class_id'
     })
-    classType.hasMany(models.subject, {
-      foreignKey: 'class_id',
-      sourceKey: 'class_id'
+    subject.hasMany(models.user_subject, {
+      foreignKey: 'subject_id',
+      sourceKey: 'subject_id'
     })
   }
 
-  return classType
+  return subject
 }
